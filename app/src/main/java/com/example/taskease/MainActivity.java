@@ -11,6 +11,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -23,14 +26,6 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        Button btnFocus = findViewById(R.id.btnFocus);
-        btnFocus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, FocusActivity.class);
-                startActivity(intent);
-            }
-        });
 
         Button btnCreatetask = findViewById(R.id.btnCreatetask);
         btnCreatetask.setOnClickListener(new View.OnClickListener() {
@@ -41,22 +36,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button btnInsights = findViewById(R.id.btnInsights);
-        btnInsights.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, FocusActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        Button btnSettings = findViewById(R.id.btnSettings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-            }
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        bottomNav.setSelectedItemId(R.id.nav_home);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_focus)
+                startActivity(new Intent(MainActivity.this, FocusActivity.class));
+            else if (id == R.id.nav_tasks)
+                startActivity(new Intent(MainActivity.this, CreateTaskActivity.class));
+            else if (id == R.id.nav_automate)
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            else if (id == R.id.nav_insights)
+                startActivity(new Intent(MainActivity.this, InsightsActivity.class));
+            else if (id == R.id.nav_home)
+                startActivity(new Intent(MainActivity.this, MainActivity.class));
+            return true;
         });
     }
 }
