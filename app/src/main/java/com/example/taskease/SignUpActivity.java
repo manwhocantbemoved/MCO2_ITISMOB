@@ -29,7 +29,6 @@ public class SignUpActivity extends AppCompatActivity {
             finish();
         });
 
-        btnCancel.setOnClickListener(v ->
-                startActivity(new Intent(SignUpActivity.this, SettingsActivity.class)));
+        btnCancel.setOnClickListener(v -> finish());
     }
 }

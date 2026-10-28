@@ -23,7 +23,6 @@ public class SignOutActivity extends AppCompatActivity {
             finish();
         });
 
-        // Intent: back to Settings
         btnCancel.setOnClickListener(v -> finish());
     }
 }
