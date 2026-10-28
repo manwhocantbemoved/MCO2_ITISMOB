@@ -1,5 +1,6 @@
 package com.example.taskease;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
             isSettled = !isSettled;
             updateStatus();
             if (isSettled) {
-                Toast.makeText(MainActivity.this, "You've been settled for a while", Toast.LENGTH_SHORT).show();
+                showSettledDialog();
             }
         });
         updateStatus();
@@ -73,6 +74,31 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, MainActivity.class));
             return true;
         });
+
+        Button btnFilterAll = findViewById(R.id.btnFilterAll);
+        Button btnFilterShort = findViewById(R.id.btnFilterShort);
+        Button btnFilterHigh = findViewById(R.id.btnFilterHigh);
+
+        btnFilterAll.setOnClickListener(v -> applyFilter("all"));
+        btnFilterShort.setOnClickListener(v -> applyFilter("short"));
+        btnFilterHigh.setOnClickListener(v -> applyFilter("high"));
+    }
+
+    private void applyFilter(String filter){
+        View card1 = findViewById(R.id.taskCard);
+        View card2 = findViewById(R.id.taskCard2);
+        View card3 = findViewById(R.id.taskCard3);
+
+        card1.setVisibility(View.VISIBLE);
+        card2.setVisibility(View.VISIBLE);
+        card3.setVisibility(View.VISIBLE);
+
+        if (filter.equals("short")) {
+            card2.setVisibility(View.GONE);
+        } else if (filter.equals("high")) {
+            card2.setVisibility(View.GONE);
+            card3.setVisibility(View.GONE);
+        }
     }
     private void updateStatus() {
         TextView tvStatus = findViewById(R.id.tvStatus);
@@ -91,5 +117,19 @@ public class MainActivity extends AppCompatActivity {
             tvWindow.setText("No free window yet");
             btnToggleStatus.setText("Simulate: I'm settled");
         }
+    }
+
+    private void showSettledDialog(){
+        String[] tasks = {
+                "Review Mobile Prototype Flow (25 min)",
+                "Workout (45 min)",
+                "Study (30 min)"
+        };
+
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("You're settled! 35 mins free")
+                .setItems(tasks, null)
+                .setNegativeButton("Dismiss", null)
+                .show();
     }
 }
