@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,13 +28,21 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        Button btnCreatetask = findViewById(R.id.btnCreatetask);
+        FloatingActionButton btnCreatetask = findViewById(R.id.fabAdd);
         btnCreatetask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, CreateTaskActivity.class);
                 startActivity(intent);
             }
+        });
+
+        Button btnStartFocus = findViewById(R.id.btnStartFocus);
+        btnStartFocus.setOnClickListener(v-> {
+            Intent i = new Intent(MainActivity.this, FocusActivity.class);
+            i.putExtra("task_name", "Review Mobile Prototype Flow");
+            i.putExtra("task_duration", "25");
+            startActivity(i);
         });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
