@@ -3,6 +3,7 @@ package com.example.taskease;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,17 +45,21 @@ public class FocusActivity extends AppCompatActivity {
         bottomNav.setSelectedItemId(R.id.nav_focus);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_focus)
-                startActivity(new Intent(FocusActivity.this, FocusActivity.class));
-            else if (id == R.id.nav_tasks)
-                startActivity(new Intent(FocusActivity.this, CreateTaskActivity.class));
+            if (id == R.id.nav_home || id == R.id.nav_tasks)
+                startActivity(new Intent(FocusActivity.this, MainActivity.class));
             else if (id == R.id.nav_automate)
                 startActivity(new Intent(FocusActivity.this, SettingsActivity.class));
             else if (id == R.id.nav_insights)
                 startActivity(new Intent(FocusActivity.this, InsightsActivity.class));
-            else if (id == R.id.nav_home)
-                startActivity(new Intent(FocusActivity.this, MainActivity.class));
             return true;
+        });
+        TextView tvTimer = findViewById(R.id.tvTimer);
+        int minutes = (duration > 0) ? duration : 25;
+        tvTimer.setText(minutes + ":00");
+
+        findViewById(R.id.btnComplete).setOnClickListener(v -> {
+            Toast.makeText(FocusActivity.this, "Task completed", Toast.LENGTH_SHORT).show();
+            finish();
         });
     }
 }

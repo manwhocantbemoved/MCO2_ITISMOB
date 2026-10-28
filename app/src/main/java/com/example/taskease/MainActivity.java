@@ -58,6 +58,22 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
         });
 
+        Button btnStartFocus2 = findViewById(R.id.btnStartFocus2);
+        btnStartFocus2.setOnClickListener(v->{
+            Intent i = new Intent(MainActivity.this, FocusActivity.class);
+            i.putExtra("task_name", "Workout");
+            i.putExtra("task_duration", 45);
+            startActivity(i);
+        });
+
+        Button btnStartFocus3 = findViewById(R.id.btnStartFocus3);
+        btnStartFocus3.setOnClickListener(v->{
+            Intent i = new Intent(MainActivity.this, FocusActivity.class);
+            i.putExtra("task_name", "Study");
+            i.putExtra("task_duration", 30);
+            startActivity(i);
+        });
+
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setSelectedItemId(R.id.nav_home);
         bottomNav.setOnItemSelectedListener(item -> {
