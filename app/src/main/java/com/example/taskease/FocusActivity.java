@@ -2,6 +2,7 @@ package com.example.taskease;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,21 @@ public class FocusActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_focus);
+        TextView tvFocusName = findViewById(R.id.tvFocusName);
+        TextView tvFocusDuration = findViewById(R.id.tvFocusDuration);
+        String name = getIntent().getStringExtra("task_name");
+        int duration = getIntent().getIntExtra("task_duration", 0);
+        if (name == null) {
+            // set tvFocusName to "Quick Focus" PLACEHOLDER ONLI
+            tvFocusName.setText("Quick Focus");
+            // set tvFocusDuration to "25 min" PLACEHOLDER ONLI
+            tvFocusDuration.setText("25 min");
+        } else {
+            // set tvFocusName to name PLACEHOLDER ONLI
+            tvFocusName.setText(name);
+            // set tvFocusDuration to duration + " min" PLACEHOLDER ONLI
+            tvFocusDuration.setText(duration + " min");
+        }
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

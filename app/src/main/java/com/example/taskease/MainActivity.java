@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         btnStartFocus.setOnClickListener(v-> {
             Intent i = new Intent(MainActivity.this, FocusActivity.class);
             i.putExtra("task_name", "Review Mobile Prototype Flow");
-            i.putExtra("task_duration", "25");
+            i.putExtra("task_duration", 25);
             startActivity(i);
         });
 
