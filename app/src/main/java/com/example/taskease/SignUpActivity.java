@@ -22,8 +22,6 @@ public class SignUpActivity extends AppCompatActivity {
         Button btnCancel = findViewById(R.id.btn_back_to_settings);
 
         btnSignUp.setOnClickListener(v -> {
-            // TODO: validate fields and save the account (e.g. SQLite) before continuing
-            // Intent: go to the main screen (replace MainActivity with your dashboard class)
             Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
             intent.putExtra("user_name", etName.getText().toString());
             intent.putExtra("user_email", etEmail.getText().toString());
@@ -31,7 +29,6 @@ public class SignUpActivity extends AppCompatActivity {
             finish();
         });
 
-        // Intent: back to Settings
         btnCancel.setOnClickListener(v ->
                 startActivity(new Intent(SignUpActivity.this, SettingsActivity.class)));
     }

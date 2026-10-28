@@ -17,8 +17,6 @@ public class SignOutActivity extends AppCompatActivity {
         Button btnCancel = findViewById(R.id.btn_cancel);
 
         btnConfirm.setOnClickListener(v -> {
-            // TODO: clear the saved session (SharedPreferences, etc.)
-            // Intent: back to Sign Up and clear the back stack
             Intent intent = new Intent(SignOutActivity.this, SignUpActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
