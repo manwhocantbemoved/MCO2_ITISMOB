@@ -51,8 +51,8 @@ public class FocusActivity extends AppCompatActivity {
                 startActivity(new Intent(FocusActivity.this, SettingsActivity.class));
             else if (id == R.id.nav_insights)
                 startActivity(new Intent(FocusActivity.this, InsightsActivity.class));
-            else if (id == R.id.nav_tasks)
-                startActivity(new Intent(FocusActivity.this, CreateTaskActivity.class));
+            else if (id == R.id.nav_profile)
+                startActivity(new Intent(FocusActivity.this, ProfileActivity.class));
             return true;
         });
         TextView tvTimer = findViewById(R.id.tvTimer);

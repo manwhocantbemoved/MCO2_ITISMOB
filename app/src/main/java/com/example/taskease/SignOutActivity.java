@@ -17,7 +17,7 @@ public class SignOutActivity extends AppCompatActivity {
         Button btnCancel = findViewById(R.id.btn_cancel);
 
         btnConfirm.setOnClickListener(v -> {
-            Intent intent = new Intent(SignOutActivity.this, SignUpActivity.class);
+            Intent intent = new Intent(SignOutActivity.this, WelcomeActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();

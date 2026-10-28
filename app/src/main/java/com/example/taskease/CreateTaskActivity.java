@@ -30,7 +30,7 @@ public class CreateTaskActivity extends AppCompatActivity {
         });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-        bottomNav.setSelectedItemId(R.id.nav_tasks);
+        bottomNav.setSelectedItemId(R.id.nav_home);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_focus)
@@ -41,6 +41,8 @@ public class CreateTaskActivity extends AppCompatActivity {
                 startActivity(new Intent(CreateTaskActivity.this, InsightsActivity.class));
             else if (id == R.id.nav_home)
                 startActivity(new Intent(CreateTaskActivity.this, MainActivity.class));
+            else if (id == R.id.nav_profile) // placeholder for nav_profile
+                startActivity(new Intent(CreateTaskActivity.this, ProfileActivity.class));
             return true;
         });
 

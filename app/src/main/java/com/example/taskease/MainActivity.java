@@ -80,8 +80,8 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
             if (id == R.id.nav_focus)
                 startActivity(new Intent(MainActivity.this, FocusActivity.class));
-            else if (id == R.id.nav_tasks)
-                startActivity(new Intent(MainActivity.this, CreateTaskActivity.class));
+            else if (id == R.id.nav_profile)
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
             else if (id == R.id.nav_automate)
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             else if (id == R.id.nav_insights)

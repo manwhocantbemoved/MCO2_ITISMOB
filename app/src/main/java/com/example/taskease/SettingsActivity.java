@@ -33,12 +33,14 @@ public class SettingsActivity extends AppCompatActivity {
         bottomNav.setSelectedItemId(R.id.nav_automate);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_home || id == R.id.nav_tasks)
+            if (id == R.id.nav_home)
                 startActivity(new Intent(SettingsActivity.this, MainActivity.class));
             else if (id == R.id.nav_focus)
                 startActivity(new Intent(SettingsActivity.this, FocusActivity.class));
             else if (id == R.id.nav_insights)
                 startActivity(new Intent(SettingsActivity.this, InsightsActivity.class));
+            else if (id == R.id.nav_profile)
+                startActivity(new Intent(SettingsActivity.this, ProfileActivity.class));
             return true;
         });
     }

@@ -30,8 +30,8 @@ public class InsightsActivity extends AppCompatActivity {
             int id = item.getItemId();
             if (id == R.id.nav_focus)
                 startActivity(new Intent(InsightsActivity.this, FocusActivity.class));
-            else if (id == R.id.nav_tasks)
-                startActivity(new Intent(InsightsActivity.this, CreateTaskActivity.class));
+            else if (id == R.id.nav_profile)
+                startActivity(new Intent(InsightsActivity.this, ProfileActivity.class));
             else if (id == R.id.nav_automate)
                 startActivity(new Intent(InsightsActivity.this, SettingsActivity.class));
             else if (id == R.id.nav_insights)
