@@ -3,6 +3,7 @@ package com.example.taskease;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,6 +18,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     private boolean isSettled = false;
@@ -29,6 +32,15 @@ public class MainActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://firebasedatabase.app");
+        DatabaseReference myRef = database.getReference("connection_test");
+
+        myRef.setValue("Hello, Taskease is connected").addOnSuccessListener(aVoid -> {
+            Log.d("FirebaseTest", "Successfully wrote data to Firebase!");
+        }).addOnFailureListener(e -> {
+            Log.e("FirebaseTest", "Failed to write data: " + e.getMessage());
         });
 
         Button btnToggleStatus = findViewById(R.id.btnToggleStatus);

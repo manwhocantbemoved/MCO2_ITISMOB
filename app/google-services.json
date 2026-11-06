@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "542659815944",
+    "project_id": "taskease-d8588",
+    "storage_bucket": "taskease-d8588.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:542659815944:android:d760dc1d000e740ca97fbd",
+        "android_client_info": {
+          "package_name": "com.example.taskease"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4BpFIJM93NEJMCHvB05EbXFYV5XoDr88"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
