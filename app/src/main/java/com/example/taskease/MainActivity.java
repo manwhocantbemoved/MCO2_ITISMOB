@@ -34,15 +34,6 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://firebasedatabase.app");
-        DatabaseReference myRef = database.getReference("connection_test");
-
-        myRef.setValue("Hello, Taskease is connected").addOnSuccessListener(aVoid -> {
-            Log.d("FirebaseTest", "Successfully wrote data to Firebase!");
-        }).addOnFailureListener(e -> {
-            Log.e("FirebaseTest", "Failed to write data: " + e.getMessage());
-        });
-
         Button btnToggleStatus = findViewById(R.id.btnToggleStatus);
         btnToggleStatus.setOnClickListener(v -> {
             isSettled = !isSettled;
