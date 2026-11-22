@@ -3,26 +3,31 @@ package com.example.taskease;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
     private boolean isSettled = false;
+    private TaskAdapter adapter;
+    private List<TaskItem> allTasks = new ArrayList<>();
+    private String currentFilter = "all";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Simulate button
         Button btnToggleStatus = findViewById(R.id.btnToggleStatus);
         btnToggleStatus.setOnClickListener(v -> {
             isSettled = !isSettled;
@@ -44,39 +50,43 @@ public class MainActivity extends AppCompatActivity {
         });
         updateStatus();
 
-        FloatingActionButton btnCreatetask = findViewById(R.id.fabAdd);
-        btnCreatetask.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, CreateTaskActivity.class);
-                startActivity(intent);
-            }
-        });
+        // + button opens Create Task
+        FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
+        fabAdd.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, CreateTaskActivity.class)));
 
-        Button btnStartFocus = findViewById(R.id.btnStartFocus);
-        btnStartFocus.setOnClickListener(v-> {
+        // Task list from the database
+        RecyclerView rvTasks = findViewById(R.id.rvTasks);
+        rvTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        adapter = new TaskAdapter(task -> {
             Intent i = new Intent(MainActivity.this, FocusActivity.class);
-            i.putExtra("task_name", "Review Mobile Prototype Flow");
-            i.putExtra("task_duration", 25);
+            i.putExtra("task_name", task.name);
+            i.putExtra("task_duration", task.duration);
             startActivity(i);
         });
+        rvTasks.setAdapter(adapter);
 
-        Button btnStartFocus2 = findViewById(R.id.btnStartFocus2);
-        btnStartFocus2.setOnClickListener(v->{
-            Intent i = new Intent(MainActivity.this, FocusActivity.class);
-            i.putExtra("task_name", "Workout");
-            i.putExtra("task_duration", 45);
-            startActivity(i);
+        DBManager.getInstance().listenTasks(tasks -> {
+            allTasks = tasks;
+            refreshList();
         });
 
-        Button btnStartFocus3 = findViewById(R.id.btnStartFocus3);
-        btnStartFocus3.setOnClickListener(v->{
-            Intent i = new Intent(MainActivity.this, FocusActivity.class);
-            i.putExtra("task_name", "Study");
-            i.putExtra("task_duration", 30);
-            startActivity(i);
+        // Filter buttons
+        findViewById(R.id.btnFilterAll).setOnClickListener(v -> {
+            currentFilter = "all";
+            refreshList();
+        });
+        findViewById(R.id.btnFilterShort).setOnClickListener(v -> {
+            currentFilter = "short";
+            refreshList();
+        });
+        findViewById(R.id.btnFilterHigh).setOnClickListener(v -> {
+            currentFilter = "high";
+            refreshList();
         });
 
+        // Bottom nav
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setSelectedItemId(R.id.nav_home);
         bottomNav.setOnItemSelectedListener(item -> {
@@ -89,36 +99,21 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             else if (id == R.id.nav_insights)
                 startActivity(new Intent(MainActivity.this, InsightsActivity.class));
-            else if (id == R.id.nav_home)
-                startActivity(new Intent(MainActivity.this, MainActivity.class));
             return true;
         });
-
-        Button btnFilterAll = findViewById(R.id.btnFilterAll);
-        Button btnFilterShort = findViewById(R.id.btnFilterShort);
-        Button btnFilterHigh = findViewById(R.id.btnFilterHigh);
-
-        btnFilterAll.setOnClickListener(v -> applyFilter("all"));
-        btnFilterShort.setOnClickListener(v -> applyFilter("short"));
-        btnFilterHigh.setOnClickListener(v -> applyFilter("high"));
     }
 
-    private void applyFilter(String filter){
-        View card1 = findViewById(R.id.taskCard);
-        View card2 = findViewById(R.id.taskCard2);
-        View card3 = findViewById(R.id.taskCard3);
-
-        card1.setVisibility(View.VISIBLE);
-        card2.setVisibility(View.VISIBLE);
-        card3.setVisibility(View.VISIBLE);
-
-        if (filter.equals("short")) {
-            card2.setVisibility(View.GONE);
-        } else if (filter.equals("high")) {
-            card2.setVisibility(View.GONE);
-            card3.setVisibility(View.GONE);
+    private void refreshList() {
+        List<TaskItem> shown = new ArrayList<>();
+        for (TaskItem t : allTasks) {
+            if ("completed".equals(t.status)) continue;
+            if (currentFilter.equals("short") && t.duration > 30) continue;
+            if (currentFilter.equals("high") && !"High".equals(t.priority)) continue;
+            shown.add(t);
         }
+        adapter.setTasks(shown);
     }
+
     private void updateStatus() {
         TextView tvStatus = findViewById(R.id.tvStatus);
         TextView tvStatusMessage = findViewById(R.id.tvStatusMessage);
@@ -138,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showSettledDialog(){
+    private void showSettledDialog() {
         String[] tasks = {
                 "Review Mobile Prototype Flow (25 min)",
                 "Workout (45 min)",
