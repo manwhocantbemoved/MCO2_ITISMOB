@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -97,8 +98,25 @@ public class CreateTaskActivity extends AppCompatActivity {
             Toast.makeText(this, "Choose a priority and energy level", Toast.LENGTH_SHORT).show();
             return;
         }
+        String priority = "Medium";
+        int pid = priorityGroup.getCheckedRadioButtonId();
+        if (pid == R.id.radioPriorityLow) priority = "Low";
+        else if (pid == R.id.radioPriorityHigh) priority = "High";
 
-        Toast.makeText(this, "Task saved", Toast.LENGTH_SHORT).show();
-        finish();
+        String energy = "Moderate";
+        int eid = energyGroup.getCheckedRadioButtonId();
+        if (eid == R.id.radioEnergyLow) energy = "Light";
+        else if (eid == R.id.radioEnergyHigh) energy = "High";
+
+        String category = "Academic";
+        ChipGroup categoryGroup = findViewById(R.id.categoryGroup);
+        Chip picked = findViewById(categoryGroup.getCheckedChipId());
+        if (picked != null) category = picked.getText().toString();
+
+        TaskItem task = new TaskItem(title, duration, priority, energy, category);
+        DBManager.getInstance().addTask(task, (ok, msg) -> {
+            Toast.makeText(CreateTaskActivity.this, msg, Toast.LENGTH_SHORT).show();
+            if (ok) finish();
+        });
     }
 }
