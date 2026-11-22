@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private TaskAdapter adapter;
     private List<TaskItem> allTasks = new ArrayList<>();
     private String currentFilter = "all";
+    private static final int FREE_WINDOW_MIN = 35;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +104,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private List<TaskItem> getFittingTasks() {
+        List<TaskItem> fitting = new ArrayList<>();
+        for (TaskItem t : allTasks) {
+            if ("completed".equals(t.status))
+                continue;
+            if (t.duration <= FREE_WINDOW_MIN)
+                fitting.add(t);
+        }
+        return fitting;
+    }
+
     private void refreshList() {
         List<TaskItem> shown = new ArrayList<>();
         for (TaskItem t : allTasks) {
@@ -122,8 +134,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (isSettled) {
             tvStatus.setText("Settled - 18m");
-            tvStatusMessage.setText("You are currently settled, we picked 3 tasks tuned for optimal flow right now.");
-            tvWindow.setText("35 mins window open - Next: Sync call at 3:00 PM");
+            tvStatusMessage.setText("You are currently settled. We found "
+                    + getFittingTasks().size() + " tasks that fit your window.");
+            tvWindow.setText(FREE_WINDOW_MIN + " mins window open");
             btnToggleStatus.setText("Simulate: I'm moving");
         } else {
             tvStatus.setText("Moving");
@@ -134,15 +147,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showSettledDialog() {
-        String[] tasks = {
-                "Review Mobile Prototype Flow (25 min)",
-                "Workout (45 min)",
-                "Study (30 min)"
-        };
+        List<TaskItem> fitting = getFittingTasks();
+
+        if (fitting.isEmpty()) {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("You're settled! " + FREE_WINDOW_MIN + " mins free")
+                    .setMessage("No saved tasks fit this window. Tap + to add one.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
+
+        String[] labels = new String[fitting.size()];
+        for (int i = 0; i < fitting.size(); i++) {
+            TaskItem t = fitting.get(i);
+            labels[i] = t.name + " (" + t.duration + " min, " + t.priority + ")";
+        }
 
         new AlertDialog.Builder(MainActivity.this)
-                .setTitle("You're settled! 35 mins free")
-                .setItems(tasks, null)
+                .setTitle("You're settled! " + FREE_WINDOW_MIN + " mins free")
+                .setItems(labels, (dialog, which) -> {
+                    TaskItem picked = fitting.get(which);
+                    Intent i = new Intent(MainActivity.this, FocusActivity.class);
+                    i.putExtra("task_name", picked.name);
+                    i.putExtra("task_duration", picked.duration);
+                    startActivity(i);
+                })
                 .setNegativeButton("Dismiss", null)
                 .show();
     }
