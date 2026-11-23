@@ -80,6 +80,37 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         fusedClient.removeLocationUpdates(locationCallback);
+        anchorLocation = null;
+    }
+
+    private static final float SETTLED_RADIUS_M = 50;
+    private static final long SETTLED_AFTER_MS = 20000;
+    private Location anchorLocation;
+    private long anchorTime;
+
+    private void handleLocation(Location loc){
+        long now = System.currentTimeMillis();
+
+        if (anchorLocation == null){
+            anchorLocation = loc;
+            anchorTime = now;
+            return;
+        }
+
+        if (loc.distanceTo(anchorLocation) > SETTLED_RADIUS_M){
+            anchorLocation = loc;
+            anchorTime = now;
+            if (isSettled){
+                isSettled = false;
+                updateStatus();
+            }
+        }
+
+        if (!isSettled && now - anchorTime >= SETTLED_AFTER_MS){
+            isSettled = true;
+            updateStatus();
+            showSettledDialog();
+        }
     }
 
     @Override
@@ -94,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 Location loc = result.getLastLocation();
                 if (loc != null) {
                     Log.d("LocationTest", "Lat " + loc.getLatitude() + ", Lng " + loc.getLongitude());
+                    handleLocation(loc);
                 }
             }
         };
