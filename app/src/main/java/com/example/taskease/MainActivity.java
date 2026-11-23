@@ -7,6 +7,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -41,7 +42,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,6 +64,12 @@ public class MainActivity extends AppCompatActivity {
     // this is for the free time window (in minutes) used to pick tasks that fit
     private static final int FREE_WINDOW_MIN = 35;
 
+    // NEW: this is for testing: when true, "settled" takes 20 seconds no matter the sensitivity setting
+    private static final boolean TEST_MODE = true;
+
+    // NEW: this is for reading the values saved by the Settings screen
+    private SharedPreferences prefs;
+
     // this is for the location permission popup and what happens after the user answers
     private final ActivityResultLauncher<String[]> locationPermission =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -69,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
                         granted ? "Location enabled" : "Location is needed for movement detection",
                         Toast.LENGTH_SHORT).show();
                 if (granted) startLocationUpdates();
-                // FIX: ask for notification permission right after the location popup
                 askNotificationPermission();
             });
 
@@ -106,17 +115,56 @@ public class MainActivity extends AppCompatActivity {
         anchorLocation = null;
     }
 
-    // this is for the settled rules: stay within 50 meters for 20 seconds (testing value)
+    // this is for the settled radius: stay within 50 meters to count as staying still
     private static final float SETTLED_RADIUS_M = 50;
-    private static final long SETTLED_AFTER_MS = 20000;
 
     // this is for remembering the spot (and the time) where the user started staying still
     private Location anchorLocation;
     private long anchorTime;
 
+    // NEW: this is for how long the user must stay still before being Settled (Sensitivity Settings)
+    private long settledAfterMs() {
+        if (TEST_MODE) return 20000;
+        int minutes = prefs.getInt("sensitivity_min", 15);
+        return minutes * 60 * 1000L;
+    }
+
+    // NEW: this is for checking if the current time falls inside Quiet Hours
+    private boolean inQuietHours() {
+        if (!prefs.getBoolean("quiet_enabled", false)) return false;
+        int start = prefs.getInt("quiet_start_min", 22 * 60);
+        int end = prefs.getInt("quiet_end_min", 7 * 60);
+        Calendar c = Calendar.getInstance();
+        int now = c.get(Calendar.HOUR_OF_DAY) * 60 + c.get(Calendar.MINUTE);
+        if (start <= end) return now >= start && now < end;
+        return now >= start || now < end; // overnight, like 10 PM to 7 AM
+    }
+
+    // NEW: this is for checking if the user is inside a blacklisted place (Location Blacklist)
+    private boolean inBlacklistedPlace(Location loc) {
+        Set<String> places = prefs.getStringSet("blacklist_places", new HashSet<>());
+        for (String p : places) {
+            String[] parts = p.split(",");
+            if (parts.length < 2) continue;
+            try {
+                float[] result = new float[1];
+                Location.distanceBetween(loc.getLatitude(), loc.getLongitude(),
+                        Double.parseDouble(parts[0].trim()), Double.parseDouble(parts[1].trim()), result);
+                if (result[0] <= 100) return true; // within 100 meters
+            } catch (NumberFormatException ignored) { }
+        }
+        return false;
+    }
+
     // this is for deciding Settled or Moving from each new location
     private void handleLocation(Location loc) {
         long now = System.currentTimeMillis();
+
+        // NEW: this is for ignoring tracking inside blacklisted places
+        if (inBlacklistedPlace(loc)) {
+            anchorLocation = null;
+            return;
+        }
 
         // this is for the very first location: just remember it as the starting spot
         if (anchorLocation == null) {
@@ -133,17 +181,17 @@ public class MainActivity extends AppCompatActivity {
                 isSettled = false;
                 updateStatus();
             }
-            // FIX: stop here so the settled check below doesn't run right after a move
             return;
         }
 
-        // this is for when the user stayed still long enough: switch to Settled
-        if (!isSettled && now - anchorTime >= SETTLED_AFTER_MS) {
+        // CHANGED: this is for becoming Settled using the sensitivity setting, and staying quiet in Quiet Hours
+        if (!isSettled && now - anchorTime >= settledAfterMs()) {
             isSettled = true;
             updateStatus();
-            showSettledDialog();
-            // FIX: this call was missing, so the notification never appeared
-            showSettledNotification();
+            if (!inQuietHours()) {
+                showSettledDialog();
+                showSettledNotification();
+            }
         }
     }
 
@@ -202,7 +250,10 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // FIX: this call was missing, so the notification channel was never created
+        // NEW: this is for opening the settings the Settings screen saves
+        prefs = getSharedPreferences("taskease_settings", MODE_PRIVATE);
+
+        // this is for creating the notification channel
         createNotificationChannel();
 
         // this is for setting up the location client and what to do with each new location
@@ -232,7 +283,6 @@ public class MainActivity extends AppCompatActivity {
             updateStatus();
             if (isSettled) {
                 showSettledDialog();
-                // FIX: this call was missing, so Simulate never showed the notification
                 showSettledNotification();
             }
         });

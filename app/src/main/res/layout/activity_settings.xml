@@ -33,19 +33,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Sensitivity: Idle Delay"
+                android:text="Sensitivity: how long you stay still before you're Settled"
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvSensitivityValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Settled after 15 minutes of staying still" />
+                android:text="15 minutes" />
 
             <SeekBar
+                android:id="@+id/seekSensitivity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="40"
-                android:progress="10" />
+                android:max="40" />
 
             <!-- QUIET HOURS -->
             <TextView
@@ -55,16 +56,23 @@
                 android:text="Quiet Hours"
                 android:textStyle="bold" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchQuiet"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
                 android:text="Mute settled notifications" />
 
-            <TextView
+            <Button
+                android:id="@+id/btnQuietStart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="From 10:00 PM until 7:30 AM" />
+                android:text="From: 10:00 PM" />
+
+            <Button
+                android:id="@+id/btnQuietEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Until: 7:00 AM" />
 
             <!-- LOCATION BLACKLIST -->
             <TextView
@@ -75,14 +83,22 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvBlacklist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Campus Library 3rd Floor (tracking off)\nHome WiFi: Orbi-Mesh-5G (tracking off)\nMedical Center (tracking off)" />
+                android:text="No places added yet" />
 
             <Button
+                android:id="@+id/btnAddBlacklist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Current WiFi / Location" />
+                android:text="Add Current Location" />
+
+            <Button
+                android:id="@+id/btnClearBlacklist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Clear Blacklist" />
 
             <!-- ACCOUNT -->
             <Button
@@ -91,7 +107,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="Sign Out" />
-
         </LinearLayout>
     </ScrollView>
 
