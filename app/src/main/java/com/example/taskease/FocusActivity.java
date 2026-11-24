@@ -2,6 +2,8 @@ package com.example.taskease;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,7 +15,16 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.Locale;
+
 public class FocusActivity extends AppCompatActivity {
+
+    private CountDownTimer timer;
+    private long timeLeftMillis;
+    private boolean running = false;
+    private long startedAt = 0;
+    private String taskId;
+    private int duration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,19 +33,15 @@ public class FocusActivity extends AppCompatActivity {
         setContentView(R.layout.activity_focus);
         TextView tvFocusName = findViewById(R.id.tvFocusName);
         TextView tvFocusDuration = findViewById(R.id.tvFocusDuration);
+        taskId = getIntent().getStringExtra("task_id");
         String name = getIntent().getStringExtra("task_name");
-        int duration = getIntent().getIntExtra("task_duration", 0);
-        if (name == null) {
-            // set tvFocusName to "Quick Focus" PLACEHOLDER ONLI
-            tvFocusName.setText("Quick Focus");
-            // set tvFocusDuration to "25 min" PLACEHOLDER ONLI
-            tvFocusDuration.setText("25 min");
-        } else {
-            // set tvFocusName to name PLACEHOLDER ONLI
-            tvFocusName.setText(name);
-            // set tvFocusDuration to duration + " min" PLACEHOLDER ONLI
-            tvFocusDuration.setText(duration + " min");
+        duration = getIntent().getIntExtra("task_duration", 0);
+        if (name == null || duration <= 0) {
+            name = "Quick Focus";
+            duration = 25;
         }
+        tvFocusName.setText(name);
+        tvFocusDuration.setText(duration + " min");
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -55,13 +62,75 @@ public class FocusActivity extends AppCompatActivity {
                 startActivity(new Intent(FocusActivity.this, ProfileActivity.class));
             return true;
         });
+        // this is for the timer and its buttons
         TextView tvTimer = findViewById(R.id.tvTimer);
-        int minutes = (duration > 0) ? duration : 25;
-        tvTimer.setText(minutes + ":00");
+        Button btnStartPause = findViewById(R.id.btnStartPause);
+        timeLeftMillis = duration * 60 * 1000L;
+        tvTimer.setText(formatTime(timeLeftMillis));
 
-        findViewById(R.id.btnComplete).setOnClickListener(v -> {
-            Toast.makeText(FocusActivity.this, "Task completed", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(FocusActivity.this, MainActivity.class));
+// this is for the Start / Pause button
+        btnStartPause.setOnClickListener(v -> {
+            if (running) {
+                timer.cancel();
+                running = false;
+                btnStartPause.setText("Resume");
+            } else {
+                if (startedAt == 0) startedAt = System.currentTimeMillis();
+                timer = new CountDownTimer(timeLeftMillis, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        timeLeftMillis = millisUntilFinished;
+                        tvTimer.setText(formatTime(millisUntilFinished));
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        running = false;
+                        timeLeftMillis = 0;
+                        tvTimer.setText("00:00");
+                        btnStartPause.setText("Start");
+                        Toast.makeText(FocusActivity.this, "Time's up!", Toast.LENGTH_SHORT).show();
+                    }
+                }.start();
+                running = true;
+                btnStartPause.setText("Pause");
+            }
         });
+
+        // this is for Mark Completed: save the status and the real time taken, then go back
+        findViewById(R.id.btnComplete).setOnClickListener(v -> {
+            if (timer != null) timer.cancel();
+
+            int actual = duration;
+            if (startedAt != 0) {
+                long elapsed = System.currentTimeMillis() - startedAt;
+                actual = Math.max(1, (int) Math.ceil(elapsed / 60000.0));
+            }
+
+            if (taskId == null) {
+                Toast.makeText(this, "Quick Focus done", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+            DBManager.getInstance().completeTask(taskId, actual, (ok, msg) -> {
+                Toast.makeText(FocusActivity.this, msg, Toast.LENGTH_SHORT).show();
+                if (ok) finish();
+            });
+        });
+    }
+
+    // this is for turning milliseconds into text like 24:59
+    private String formatTime(long millis) {
+        long mins = millis / 60000;
+        long secs = (millis / 1000) % 60;
+        return String.format(Locale.getDefault(), "%02d:%02d", mins, secs);
+    }
+
+    // this is for stopping the timer when the screen closes
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (timer != null) timer.cancel();
     }
 }

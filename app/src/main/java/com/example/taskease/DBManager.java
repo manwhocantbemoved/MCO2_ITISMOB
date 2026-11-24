@@ -10,6 +10,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DBManager {
 
@@ -25,6 +27,15 @@ public class DBManager {
         tasksRef = FirebaseDatabase.getInstance(DB_URL).getReference("tasks");
     }
 
+    // this is to mark a task as completed anf save the time it toojk
+    public void completeTask(String id, int actualMinutes, Callback cb){
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", "completed");
+        updates.put("actualMinutes", actualMinutes);
+        updates.put("completedAt", System.currentTimeMillis());
+        tasksRef.child(id).updateChildren(updates).addOnSuccessListener(v -> cb.onResult(true, "Task completed"))
+                .addOnFailureListener(e -> cb.onResult(false, e.getMessage()));
+    }
     public static DBManager getInstance() {
         if (instance == null) instance = new DBManager();
         return instance;
@@ -45,7 +56,10 @@ public class DBManager {
                 List<TaskItem> list = new ArrayList<>();
                 for (DataSnapshot child : snapshot.getChildren()) {
                     TaskItem t = child.getValue(TaskItem.class);
-                    if (t != null) list.add(t);
+                    if (t != null){
+                        t.id = child.getKey();
+                        list.add(t);
+                    }
                 }
                 listener.onTasks(list);
             }

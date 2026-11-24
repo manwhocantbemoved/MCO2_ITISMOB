@@ -9,7 +9,7 @@ public class TaskItem {
     public String category;
     public String status = "pending";
     public int actualMinutes = 0;
-
+    public long completedAt = 0;
     public TaskItem() {}
 
     public TaskItem(String name, int duration, String priority, String energy, String category) {

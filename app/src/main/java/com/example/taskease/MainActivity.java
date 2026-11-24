@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int FREE_WINDOW_MIN = 35;
 
     // NEW: this is for testing: when true, "settled" takes 20 seconds no matter the sensitivity setting
-    private static final boolean TEST_MODE = true;
+    private static final boolean TEST_MODE = false;
 
     // NEW: this is for reading the values saved by the Settings screen
     private SharedPreferences prefs;
@@ -302,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent(MainActivity.this, FocusActivity.class);
             i.putExtra("task_name", task.name);
             i.putExtra("task_duration", task.duration);
+            i.putExtra("task_id", task.id);
             startActivity(i);
         });
         rvTasks.setAdapter(adapter);
@@ -408,7 +409,6 @@ public class MainActivity extends AppCompatActivity {
     // this is for the popup that lists the tasks that fit when the user becomes Settled
     private void showSettledDialog() {
         List<TaskItem> fitting = getFittingTasks();
-
         // this is for the case where no saved task fits the free window
         if (fitting.isEmpty()) {
             new AlertDialog.Builder(MainActivity.this)
@@ -434,6 +434,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent i = new Intent(MainActivity.this, FocusActivity.class);
                     i.putExtra("task_name", picked.name);
                     i.putExtra("task_duration", picked.duration);
+                    i.putExtra("task_id", picked.id);
                     startActivity(i);
                 })
                 .setNegativeButton("Dismiss", null)
